@@ -3,15 +3,16 @@ import os
 import pathlib
 home = pathlib.Path(__file__).parent.absolute()
 
-BOOTSTRAP_SERVERS = 'localhost:19092'
-SCHEMA_REGISTRY_URL= 'http://localhost:7070'
-GROUP_ID= 'groupid101'
-AUTO_OFFSET_RESET = None
+
+BOOTSTRAP_SERVERS = os.environ.get('BOOTSTRAP_SERVERS')
+SCHEMA_REGISTRY_URL= os.environ.get('SCHEMA_REGISTRY_URL')
+GROUP_ID= os.environ.get('GROUP_ID')
+AUTO_OFFSET_RESET = os.environ.get('AUTO_OFFSET_RESET')
+CONSUMER_TOPIC = os.environ.get('CONSUMER_TOPIC')
+PRODUCE_TOPIC = os.environ.get('PRODUCE_TOPIC')
 
 if not AUTO_OFFSET_RESET:
     AUTO_OFFSET_RESET= 'earliest'
-CONSUMER_TOPIC = 'test-topic'
-PRODUCE_TOPIC = 'test-topic'
 
 def kafka_schema():
     ''' Parse Schema used for serializing class '''
@@ -19,10 +20,8 @@ def kafka_schema():
         # use avro.load when trying to read .avsc avro schema file
         # This is sample schema for kafka with python, we will not be using this function
         # rather we will load .avsc file for our purpose
-
-    
+  
     from confluent_kafka import avro
-
     record_schema = avro.loads("""
         {
             "namespace": "resumeLinks",

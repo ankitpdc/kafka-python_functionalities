@@ -1,0 +1,80 @@
+version: '2'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:4.0.0
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - 22181:22181
+      - 22888:22888
+      - 23888:23888
+    volumes:
+      - /var/db/zookeeper_1/data:/var/lib/zookeeper/data
+      - /var/db/zookeeper_1/logs:/var/lib/zookeeper/log
+    environment:
+      - ZOOKEEPER_SERVER_ID=1
+      - ZOOKEEPER_CLIENT_PORT=22181
+      - ZOOKEEPER_TICK_TIME=2000
+      - ZOOKEEPER_INIT_LIMIT=5
+      - ZOOKEEPER_SYNC_LIMIT=2
+      - ZOOKEEPER_SERVERS=0.0.0.0:22888:23888
+      - ZOOKEEPER_LOG4J_ROOT_LOGLEVEL=WARN
+      - ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL=ERROR
+  broker:
+    image: confluentinc/cp-kafka:4.0.0
+    hostname: broker
+    container_name: broker
+    depends_on:
+      - zookeeper
+    ports:
+      - 19092:19092
+      - 29092:29092
+    volumes:
+      - /var/db/kafka/broker_1/data:/var/lib/kafka/data
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:22181
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://broker:9092,PLAINTEXT_HOST://localhost:19092
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_LOG4J_LOGGERS=kafka.controller=WARN,kafka.request.logger=WARN,kafka.state.change.logger=WARN,kafka.producer.async.DefaultEventHandler=WARN,kafka.log.LogCleaner=WARN,kafka.coordinator.group.GroupMetadataManager=WARN,kafka.server.epoch.LeaderEpochFileCache=WARN,kafka.coordinator.group.GroupCoordinator=WARN,state.change.logger=WARN,kafka.cluster.Partition=WARN,kafka=WARN
+      - KAFKA_LOG4J_ROOT_LOGLEVEL=WARN
+      - KAFKA_TOOLS_LOG4J_LOGLEVEL=ERROR
+      - KAFKA_LOG_RETENTION_HOURS=-1
+      - KAFKA_ENABLE_IDEMPOTENCE=true
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_REPLICA_FETCH_MAX_BYTES=15728640
+      - KAFKA_MESSAGE_MAX_BYTES=15728640
+      - KAFKA_DELETE_TOPIC_ENABLE=true
+  schema-registry:
+    image: confluentinc/cp-schema-registry:4.0.0
+    hostname: schema-registry
+    container_name: schema-registry
+    depends_on:
+      - zookeeper
+      - broker
+    ports:
+      - 7070:7070
+    environment:
+      - SCHEMA_REGISTRY_HOST_NAME=schema-registry
+      - SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL=zookeeper:22181
+      - SCHEMA_REGISTRY_kafkastore_topic_replication_factor=1
+      - SCHEMA_REGISTRY_LISTENERS=http://0.0.0.0:7070
+      - SCHEMA_REGISTRY_DEBUG=true
+      - SCHEMA_REGISTRY_avro_compatibility_level=full_transitive
+      - SCHEMA_REGISTRY_LOG4J_ROOT_LOGLEVEL=WARN
+      - SCHEMA_REGISTRY_TOOLS_LOG4J_LOGLEVEL=ERROR
+      - SCHEMA_REGISTRY_LOG4J_LOGGERS=kafka.controller=WARN,kafka.request.logger=WARN,kafka.state.change.logger=WARN,kafka.producer.async.DefaultEventHandler=WARN,kafka.log.LogCleaner=WARN,kafka.coordinator.group.GroupMetadataManager=WARN,kafka.server.epoch.LeaderEpochFileCache=WARN,kafka.coordinator.group.GroupCoordinator=WARN,state.change.logger=WARN,kafka.cluster.Partition=WARN,kafka=WARN
+  kafka-manager:
+    image: sheepkiller/kafka-manager
+    hostname: kafka-manager
+    container_name: kafka-manager
+    depends_on:
+      - zookeeper
+      - broker
+      - schema-registry
+    ports:
+      - 9000:9000
+    environment:
+      - ZK_HOSTS=zookeeper:22181
+      - APPLICATION_SECRET=letmein
