@@ -1,0 +1,34 @@
+{
+    "namespace": "jobInformationExtrction",
+    "name": "jobExtractedInformation",
+    "type": "record",
+    "fields": [ {
+        "name": "createdOn", 
+        "type":["long", "null"],
+        "default": 0,
+        "logicalType" : "timestamp-millis"
+    }, {
+        "name": "Name", 
+        "type":["string", "null"],
+        "default": ""
+    },{
+        "name": "dateOfBirth", 
+        "type":["string", "null"],
+        "default": ""
+    }, {
+        "name": "class", 
+        "type":["string", "null"],
+        "default": ""
+    }, {
+        "name": "section", 
+        "type":["string", "null"],
+        "default": ""
+    }, {
+        "name" : "subjects",
+        "type" : [ {
+          "type" : "array",
+          "items" : "string"
+        }, "null" ],
+        "default" : [ ]
+    }]
+}

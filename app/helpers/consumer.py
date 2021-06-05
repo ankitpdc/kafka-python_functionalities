@@ -1,6 +1,6 @@
 from confluent_kafka.avro.serializer import SerializerError
 from kafka_config import unpack, kafka_consumer_config
-from consumer_testing import sample_operation_on_consumed_message
+from helpers.use_consumed_msg import sample_operation_on_consumed_message
 
 
 ###################################################################################################
@@ -33,7 +33,6 @@ class ConsumingKafkaMessage():
                         return
                     input_json = unpack(msg.value())
                     try:
-                        print("started for file: %s", input_json['path'])
                         sample_operation_on_consumed_message(input_json)
                     except Exception as e:
                         print("Failed for input path %s and error: %s", input_json['path'], e)

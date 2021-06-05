@@ -1,8 +1,7 @@
 
 import os
-home_path = os.path.expanduser('~')
-home = os.path.abspath(os.path.join(home_path))
-
+import pathlib
+home = pathlib.Path(__file__).parent.absolute()
 
 BOOTSTRAP_SERVERS = 'localhost:19092'
 SCHEMA_REGISTRY_URL= 'http://localhost:7070'

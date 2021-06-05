@@ -33,13 +33,16 @@ class AssignValuesAndProduceToKafka():
         record_schema, conf, topic = kafka_producer_config()
         self.ptk = ProduceObjectToKafka(record_schema, conf, topic)
 
-    def produce_job_information(self, data, input_json):
+    def produce_job_information(self, output_data_list):
         try:
             record = DataObject()
 
-            record.senderName = data.get('sender_name')
-            record.company = data.get('company')
-            record.senderEmail = data.get('sender_email')
+            record.createdOn = output_data_list[0]
+            record.Name = output_data_list[1]
+            record.dateOfBirth = output_data_list[2]
+            record.standard = output_data_list[3]
+            record.section = output_data_list[4]
+            record.subjects = output_data_list[5]
 
             # print(record.to_dict())
             self.ptk.produce_message(record.to_dict())
@@ -53,13 +56,16 @@ class DataObject(object):
     """
 
     # Use __slots__ to explicitly declare all data members.
-    __slots__ = ["senderName", "company", "senderEmail"]
+    __slots__ = ["createdOn", "Name", "dateOfBirth", "standard", "section", "subjects"]
 
-    def __init__(self, senderName = None, company = None, senderEmail = None):
+    def __init__(self, createdOn = None, Name = None, dateOfBirth = None, standard = None, section = None, subjects = None):
         
-        self.senderName = senderName
-        self.company = company
-        self.senderEmail = senderEmail
+        self.createdOn = createdOn
+        self.Name = Name
+        self.dateOfBirth = dateOfBirth
+        self.standard = standard
+        self.section = section
+        self.subjects = subjects
 
     def to_dict(self):
         """
@@ -67,9 +73,12 @@ class DataObject(object):
             For this reason we must provide a dict representation of our class for serialization.
         """
         return {
-            "sourceOfJob": "email",
-            "senderName": self.senderName,
-            "company": self.company
+            "createdOn": self.createdOn,
+            "Name": self.Name,
+            "dateOfBirth": self.dateOfBirth,
+            "standard": self.standard,
+            "section": self.section,
+            "subjects": self.subjects
         }
 
 ###########
